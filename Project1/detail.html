@@ -10,7 +10,9 @@
     <h1>Detect Faces:</h1>
     Enter the URL to an image that includes a face or faces, then click
     the <strong>Analyze face</strong> button.<br><br>
-    Image to analyze: <input type="text" name="inputImage" id="inputImage" /><button onclick="processImage()">analy</button><br><br>
+    Image to analyze: <input type="file" name="inputImage" id="inputImage" />
+    <!--<button onclick="processImage()">analy</button>-->
+    <br><br>
     <div id="wrapper" style="width:1020px; display:table;">
         <div id="jsonOutput" style="width:600px; display:table-cell;">
             Response:<br><br>
@@ -23,6 +25,16 @@
     </div>
 
     <script type="text/javascript">
+    var file = document.querySelector('#inputImage');
+        file.onchange = function () {
+            var fileList = file.files;       // 읽기
+            var reader = new FileReader();
+            reader.readAsDataURL(fileList[0]); //로드 한 후
+            reader.onload = function () {
+                document.querySelector('#sourceImage').src = reader.result;
+                processImage();
+            };
+        };
                 function processImage() {
             // Replace <Subscription Key> with your valid subscription key.
             var subscriptionKey = "ae3f6811a3704691aba198589842f238";
@@ -38,8 +50,9 @@
         };
  
         // Display the image.
-        var sourceImageUrl = document.getElementById("inputImage").value;
-        document.querySelector("#sourceImage").src = sourceImageUrl;
+        /*var sourceImageUrl = document.getElementById("inputImage").value;
+        document.querySelector("#sourceImage").src = sourceImageUrl;*/
+        var sourceImageUrl = document.querySelector("#sourceImage").src;
  
         // Perform the REST API call.
         $.ajax({
@@ -47,14 +60,16 @@
  
             // Request headers.
             beforeSend: function(xhrObj){
-                xhrObj.setRequestHeader("Content-Type","application/json");
+                xhrObj.setRequestHeader("Content-Type","application/octet-stream");
                 xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", subscriptionKey);
             },
  
             type: "POST",
- 
+
+            processData: false, 
+
             // Request body.
-            data: '{"url": ' + '"' + sourceImageUrl + '"}',
+            data: makeblob('data:'+sourceImageUrl),
         })
  
         .done(function(data) {
@@ -70,6 +85,28 @@
             alert(errorString);
         });
     };
+
+    makeblob = function (dataURL) {
+            var BASE64_MARKER = ';base64,';
+            if (dataURL.indexOf(BASE64_MARKER) == -1) {
+                var parts = dataURL.split(',');
+                var contentType = parts[0].split(':')[1];
+                var raw = decodeURIComponent(parts[1]);
+                return new Blob([raw], { type: contentType });
+            }
+            var parts = dataURL.split(BASE64_MARKER);
+            var contentType = parts[0].split(':')[1];
+            var raw = window.atob(parts[1]);
+            var rawLength = raw.length;
+
+            var uInt8Array = new Uint8Array(rawLength);
+
+            for (var i = 0; i < rawLength; ++i) {
+                uInt8Array[i] = raw.charCodeAt(i);
+            }
+
+            return new Blob([uInt8Array], { type: contentType });
+        };
     </script>
 </body>
 
