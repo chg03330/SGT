@@ -7,10 +7,9 @@
 </head>
 
 <body>
-    <h1>Detect Faces:</h1>
-    Enter the URL to an image that includes a face or faces, then click
-    the <strong>Analyze face</strong> button.<br><br>
-    Image to analyze: <input type="file" name="inputImage" id="inputImage" />
+    <br><br>
+    얼굴나온사진 등록하기 <br> <br>
+    <input type="file" name="inputImage" id="inputImage" />
     <!--<button onclick="processImage()">analy</button>-->
     <br><br>
     <div id="wrapper" style="width:1020px; display:table;">
@@ -44,9 +43,17 @@
 
             // Request parameters.
             var params = {
+                /*
             "returnFaceId": "true",
-            "returnFaceLandmarks": "false",
+            "returnFaceLandmarks": "true",
             "returnFaceAttributes": "age,gender,headPose,smile,facialHair,glasses,emotion,hair,makeup,occlusion,accessories,blur,exposure,noise",
+            */
+            "returnFaceId": "true",
+            "returnFaceLandmarks": "true",
+            "returnFaceAttributes":  "age,gender,headPose,smile,facialHair,glasses,emotion,hair,makeup,occlusion,accessories,blur,exposure,noise",
+            "recognitionModel": "recognition_03",
+            "returnRecognitionModel": "false",
+            "detectionModel": "detection_01",
         };
  
         // Display the image.
@@ -74,7 +81,9 @@
  
         .done(function(data) {
             // Show formatted JSON on webpage.
-            $("#responseTextArea").val(JSON.stringify(data, null, 2));
+            var oldData=JSON.stringify(data,null,2);
+            $("#responseTextArea").val(oldData);
+            changeData(data);
         })
  
         .fail(function(jqXHR, textStatus, errorThrown) {
@@ -107,6 +116,15 @@
 
             return new Blob([uInt8Array], { type: contentType });
         };
+    
+    changeData = function(data){
+        alert((data[0].faceAttributes).gender);
+        if((data[0].faceAttributes).gender=="female"){
+            alert(data[0].faceId);
+        }
+    }
+    
+
     </script>
 </body>
 
