@@ -7,6 +7,9 @@
 </head>
 
 <body>
+
+
+
     <br><br>
     얼굴나온사진 등록하기 <br> <br>
     <input type="file" name="inputImage" id="inputImage" />
@@ -23,8 +26,13 @@
         </div>
     </div>
 
+
+
+
+
+
     <script type="text/javascript">
-    var file = document.querySelector('#inputImage');
+        var file = document.querySelector('#inputImage');
         file.onchange = function () {
             var fileList = file.files;       // 읽기
             var reader = new FileReader();
@@ -34,7 +42,7 @@
                 processImage();
             };
         };
-                function processImage() {
+        function processImage() {
             // Replace <Subscription Key> with your valid subscription key.
             var subscriptionKey = "ae3f6811a3704691aba198589842f238";
 
@@ -48,54 +56,55 @@
             "returnFaceLandmarks": "true",
             "returnFaceAttributes": "age,gender,headPose,smile,facialHair,glasses,emotion,hair,makeup,occlusion,accessories,blur,exposure,noise",
             */
-            "returnFaceId": "true",
-            "returnFaceLandmarks": "true",
-            "returnFaceAttributes":  "age,gender,headPose,smile,facialHair,glasses,emotion,hair,makeup,occlusion,accessories,blur,exposure,noise",
-            "recognitionModel": "recognition_03",
-            "returnRecognitionModel": "false",
-            "detectionModel": "detection_01",
+                "returnFaceId": "true",
+                "returnFaceLandmarks": "true",
+                "returnFaceAttributes": "age,gender,headPose,smile,facialHair,glasses,emotion,hair,makeup,occlusion,accessories,blur,exposure,noise",
+                "recognitionModel": "recognition_03",
+                "returnRecognitionModel": "false",
+                "detectionModel": "detection_01",
+            };
+
+            // Display the image.
+            /*var sourceImageUrl = document.getElementById("inputImage").value;
+            document.querySelector("#sourceImage").src = sourceImageUrl;*/
+            var sourceImageUrl = document.querySelector("#sourceImage").src;
+
+            // Perform the REST API call.
+            $.ajax({
+                url: uriBase + "?" + $.param(params),
+
+                // Request headers.
+                beforeSend: function (xhrObj) {
+                    xhrObj.setRequestHeader("Content-Type", "application/octet-stream");
+                    xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", subscriptionKey);
+                },
+
+                type: "POST",
+
+                processData: false,
+
+                // Request body.
+                data: makeblob('data:' + sourceImageUrl),
+            })
+
+                .done(function (data) {
+                    // Show formatted JSON on webpage.
+                    //var oldData = JSON.stringify(data, null, 2);
+                    var oldData = JSON.stringify(changeData(data), null, 2);
+                    $("#responseTextArea").val(oldData);
+                    //changeData(data);
+                })
+
+                .fail(function (jqXHR, textStatus, errorThrown) {
+                    // Display error message.
+                    var errorString = (errorThrown === "") ? "Error. " : errorThrown + " (" + jqXHR.status + "): ";
+                    errorString += (jqXHR.responseText === "") ? "" : (jQuery.parseJSON(jqXHR.responseText).message) ?
+                        jQuery.parseJSON(jqXHR.responseText).message : jQuery.parseJSON(jqXHR.responseText).error.message;
+                    alert(errorString);
+                });
         };
- 
-        // Display the image.
-        /*var sourceImageUrl = document.getElementById("inputImage").value;
-        document.querySelector("#sourceImage").src = sourceImageUrl;*/
-        var sourceImageUrl = document.querySelector("#sourceImage").src;
- 
-        // Perform the REST API call.
-        $.ajax({
-            url: uriBase + "?" + $.param(params),
- 
-            // Request headers.
-            beforeSend: function(xhrObj){
-                xhrObj.setRequestHeader("Content-Type","application/octet-stream");
-                xhrObj.setRequestHeader("Ocp-Apim-Subscription-Key", subscriptionKey);
-            },
- 
-            type: "POST",
 
-            processData: false, 
-
-            // Request body.
-            data: makeblob('data:'+sourceImageUrl),
-        })
- 
-        .done(function(data) {
-            // Show formatted JSON on webpage.
-            var oldData=JSON.stringify(data,null,2);
-            $("#responseTextArea").val(oldData);
-            changeData(data);
-        })
- 
-        .fail(function(jqXHR, textStatus, errorThrown) {
-            // Display error message.
-            var errorString = (errorThrown === "") ? "Error. " : errorThrown + " (" + jqXHR.status + "): ";
-            errorString += (jqXHR.responseText === "") ? "" : (jQuery.parseJSON(jqXHR.responseText).message) ?
-                jQuery.parseJSON(jqXHR.responseText).message : jQuery.parseJSON(jqXHR.responseText).error.message;
-            alert(errorString);
-        });
-    };
-
-    makeblob = function (dataURL) {
+        makeblob = function (dataURL) {
             var BASE64_MARKER = ';base64,';
             if (dataURL.indexOf(BASE64_MARKER) == -1) {
                 var parts = dataURL.split(',');
@@ -116,14 +125,34 @@
 
             return new Blob([uInt8Array], { type: contentType });
         };
-    
-    changeData = function(data){
-        alert((data[0].faceAttributes).gender);
-        if((data[0].faceAttributes).gender=="female"){
-            alert(data[0].faceId);
-        }
+
+
+        var newEmo = {
+            "화남":0, "경멸":0, "혐오":0, "공포":0, "행복":0, "불명확":0, "슬픔":0, "놀람":0,
     }
-    
+    /*emo.anger emo.contempt emo.disgust emo.fear emo.happiness emo.neutral*/
+
+    /*쓸 데이터만 뽑으려고 합니다.*/
+        changeData = function (data) {
+            var emo = (data[0].faceAttributes).emotion;
+            //alert(JSON.stringify(newEmo));
+            emo["gender"]=(data[0].faceAttributes).gender;
+
+            if(emo.anger>0){
+                newEmo.화남=emo.anger;
+            }
+            alert(newEmo.화남);
+
+            /*
+                    alert((data[0].faceAttributes).gender);
+                    if((data[0].faceAttributes).gender=="female"){
+                        alert(data[0].faceId);
+                    }
+            */
+
+            return emo;
+        }
+
 
     </script>
 </body>
