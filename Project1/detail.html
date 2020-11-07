@@ -90,6 +90,8 @@
                 .done(function (data) {
                     // Show formatted JSON on webpage.
                     //var oldData = JSON.stringify(data, null, 2);
+                    if(data == "")
+                        alert("얼굴 인식이 정상적으로 되지 않는 사진입니다!");
                     var oldData = JSON.stringify(changeData(data), null, 2);
                     $("#responseTextArea").val(oldData);
                     //changeData(data);
@@ -126,31 +128,19 @@
             return new Blob([uInt8Array], { type: contentType });
         };
 
-
-        var newEmo = {
-            "화남":0, "경멸":0, "혐오":0, "공포":0, "행복":0, "불명확":0, "슬픔":0, "놀람":0,
-    }
     /*emo.anger emo.contempt emo.disgust emo.fear emo.happiness emo.neutral*/
 
     /*쓸 데이터만 뽑으려고 합니다.*/
         changeData = function (data) {
             var emo = (data[0].faceAttributes).emotion;
-            //alert(JSON.stringify(newEmo));
             emo["gender"]=(data[0].faceAttributes).gender;
-
-            if(emo.anger>0){
-                newEmo.화남=emo.anger;
-            }
-            alert(newEmo.화남);
-
+            return emo;
             /*
                     alert((data[0].faceAttributes).gender);
                     if((data[0].faceAttributes).gender=="female"){
                         alert(data[0].faceId);
                     }
             */
-
-            return emo;
         }
 
 

@@ -2,12 +2,22 @@
 <html>
 
 <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
     <style>
         body {
             padding: 0;
             margin: 0;
             width: 100%;
             height: 100%;
+            background-color: #FBCFD0;
+        }
+
+        div {
+            background-color: white;
+        }
+
+        h2 {
+            display: inline;
         }
 
         /**** HTML TAG progress bar ****/
@@ -19,7 +29,8 @@
             width: 300px;
             height: 10px;
             border-radius: 7px;
-            color: #35495e;
+            color: tomato;
+            /* color: #35495e;*/
         }
 
         progress::-webkit-progress-bar {
@@ -27,10 +38,30 @@
             border-radius: 8px;
         }
 
-        progress::-webkit-progress-value {
-            background-color: #35495e;
+        progress.happinessTag::-webkit-progress-value {
+            background-color: rgb(31, 238, 83);
+            /* background-color: #35495e;*/
             border-radius: 8px;
         }
+
+        progress.angryTag::-webkit-progress-value {
+            background-color: tomato;
+            /* background-color: #35495e;*/
+            border-radius: 8px;
+        }
+
+        progress.fearTag::-webkit-progress-value {
+            background-color: rgb(203, 124, 255);
+            /* background-color: #35495e;*/
+            border-radius: 8px;
+        }
+
+        progress.surpriseTag::-webkit-progress-value {
+            background-color: rgb(225, 247, 131);
+            /* background-color: #35495e;*/
+            border-radius: 8px;
+        }
+
 
         progress::-moz-progress-bar {
             background-color: #eee;
@@ -124,24 +155,28 @@
         </div>
 
         <div style="height: 500px; border: 1px solid black;">
-            <img id="sourceImage" width="100%" alt="업로드 버튼을 눌러 사진을 등록하면, 값이 나옵니다" />
+            <img id="sourceImage" width="100%" height="100%" alt="업로드 버튼을 눌러 사진을 등록하면, 값이 나옵니다" />
         </div>
 
         <div style="width:300px; margin: 0 auto;">
-            <h2>HTML5</h2>
-            <progress class="progressTag" name="" value="0" max="100" />
+            <h2>행복</h2>
+            <h2>행복수치</h2>
+            <progress class="progressTag happinessTag" value="0" max="100" />
         </div><br>
         <div style="width:300px; margin: 0 auto;">
-            <h2>HTML5</h2>
-            <progress class="progressTag" value="0" max="100" />
+            <h2>화남</h2>
+            <h2>화남수치</h2>
+            <progress class="progressTag angryTag" id="angryTag" value="0" max="100" />
         </div><br>
         <div style="width:300px; margin: 0 auto;">
-            <h2>HTML5</h2>
-            <progress class="progressTag" value="0" max="100" />
+            <h2>두려움</h2>
+            <h2>두려움수치</h2>
+            <progress class="progressTag fearTag" value="0" max="100" />
         </div><br>
         <div style="width:300px; margin: 0 auto;">
-            <h2>HTML5</h2>
-            <progress class="progressTag" value="0" max="100" />
+            <h2>놀라움</h2>
+            <h2>놀라움수치</h2>
+            <progress class="progressTag surpriseTag" value="0" max="100" />
         </div>
         <br><br><br><br><br>
     </div>
@@ -161,7 +196,7 @@
                 processImage();
             };
         };
-        
+
         function processImage() {
             // Replace <Subscription Key> with your valid subscription key.
             var subscriptionKey = "ae3f6811a3704691aba198589842f238";
@@ -210,8 +245,11 @@
                 .done(function (data) {
                     // Show formatted JSON on webpage.
                     //var oldData = JSON.stringify(data, null, 2);
+                    if(data == "")
+                        alert("얼굴 인식이 정상적으로 되지 않는 사진입니다!");
                     var oldData = JSON.stringify(changeData(data), null, 2);
-                    $("#responseTextArea").val(oldData);
+                    joinDataProgressbar(changeData(data));
+                    //$("#responseTextArea").val(oldData);
                     //changeData(data);
                 })
 
@@ -246,13 +284,35 @@
             return new Blob([uInt8Array], { type: contentType });
         };
 
+        /*쓸 데이터만 뽑으려고 합니다.*/
+        changeData = function (data) {
+            var emo = (data[0].faceAttributes).emotion;
+            emo["gender"] = (data[0].faceAttributes).gender;
+            return emo;
+            /*
+                    alert((data[0].faceAttributes).gender);
+                    if((data[0].faceAttributes).gender=="female"){
+                        alert(data[0].faceId);
+                    }
+            */
+        }
 
+        function joinDataProgressbar(changedData) {
+            drawProgress("happinessTag", changedData.happiness);
+            drawProgress("angryTag", changedData.anger);
+            drawProgress("fearTag", changedData.fear);
+            drawProgress("surpriseTag", changedData.surprise);
+        }
 
-        function tag() {
-            let progress = document.querySelector('.progressTag')
+        function drawProgress(progressName, emotionValue) {
+            //let progress = document.querySelector('.progressTag')           
+            let progress = document.querySelector("." + progressName);
+
             let interval = 1
             let updatesPerSecond = 1000 / 60
-            let end = progress.max * 0.8
+            let end = emotionValue * 100;
+            //let end = progress.max * 0.8
+
 
             function animator() {
                 progress.value = progress.value + interval
@@ -268,7 +328,7 @@
             }, updatesPerSecond)
         }
 
-        tag()
+
     </script>
 </body>
 
