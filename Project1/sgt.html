@@ -146,8 +146,11 @@
 </head>
 
 <body>
-
-    <div style="border: 1px solid black; width: 500px;margin:0 auto; margin-top: 5%; margin-bottom: 5%;">
+    <div style="border: 0px; width: 500px; height: 70px; margin: 0 auto; margin-top: 5%;">
+        <img src="./seoil.png" height="70px" align="left" />
+        <h1>슬기틀다루미</h1>
+    </div>
+    <div style="border: 1px solid black; width: 500px;margin:0 auto;  margin-bottom: 5%;">
 
         <div class="filebox">
             <label for="inputImage">업로드</label>
@@ -160,22 +163,22 @@
 
         <div style="width:300px; margin: 0 auto;">
             <h2>행복</h2>
-            <h2>행복수치</h2>
+            <h2 class="h2ValueTag happinessValueTag">행복수치</h2>
             <progress class="progressTag happinessTag" value="0" max="100" />
         </div><br>
         <div style="width:300px; margin: 0 auto;">
             <h2>화남</h2>
-            <h2>화남수치</h2>
+            <h2 class="h2ValueTag angryValueTag">화남수치</h2>
             <progress class="progressTag angryTag" id="angryTag" value="0" max="100" />
         </div><br>
         <div style="width:300px; margin: 0 auto;">
             <h2>두려움</h2>
-            <h2>두려움수치</h2>
+            <h2 class="h2ValueTag fearValueTag">두려움수치</h2>
             <progress class="progressTag fearTag" value="0" max="100" />
         </div><br>
         <div style="width:300px; margin: 0 auto;">
             <h2>놀라움</h2>
-            <h2>놀라움수치</h2>
+            <h2 class="h2ValueTag surpriseValueTag">놀라움수치</h2>
             <progress class="progressTag surpriseTag" value="0" max="100" />
         </div>
         <br><br><br><br><br>
@@ -245,12 +248,14 @@
                 .done(function (data) {
                     // Show formatted JSON on webpage.
                     //var oldData = JSON.stringify(data, null, 2);
-                    if(data == "")
+                    if (data == "")
                         alert("얼굴 인식이 정상적으로 되지 않는 사진입니다!");
-                    var oldData = JSON.stringify(changeData(data), null, 2);
-                    joinDataProgressbar(changeData(data));
-                    //$("#responseTextArea").val(oldData);
-                    //changeData(data);
+                    else {
+                        //var oldData = JSON.stringify(changeData(data), null, 2);                        
+                        joinDataProgressbar(changeData(data));
+                        //$("#responseTextArea").val(oldData);
+                        //changeData(data);
+                    }
                 })
 
                 .fail(function (jqXHR, textStatus, errorThrown) {
@@ -298,29 +303,53 @@
         }
 
         function joinDataProgressbar(changedData) {
-            drawProgress("happinessTag", changedData.happiness);
-            drawProgress("angryTag", changedData.anger);
-            drawProgress("fearTag", changedData.fear);
-            drawProgress("surpriseTag", changedData.surprise);
+            drawProgress("happiness", changedData.happiness);
+            drawProgress("angry", changedData.anger);
+            drawProgress("fear", changedData.fear);
+            drawProgress("surprise", changedData.surprise);
         }
 
         function drawProgress(progressName, emotionValue) {
             //let progress = document.querySelector('.progressTag')           
-            let progress = document.querySelector("." + progressName);
+            let progress = document.querySelector("." + progressName + "Tag");
+            let value = document.querySelector("." + progressName + "ValueTag");
 
             let interval = 1
             let updatesPerSecond = 1000 / 60
-            let end = emotionValue * 100;
+            let end = checkEmotionValue(emotionValue);
             //let end = progress.max * 0.8
+            progress.value=0;
+            value.innerHTML = end;
 
-
+/*
             function animator() {
-                progress.value = progress.value + interval
-                if (progress.value + interval < end) {
-                    setTimeout(animator, updatesPerSecond);
-                } else {
-                    progress.value = end
+                if (end == 0)
+                    progress.value = 0;
+                else {
+                    progress.value = progress.value + interval
+                    if (progress.value + interval < end) {
+                        setTimeout(animator, updatesPerSecond);
+                    } else {
+                        progress.value = end
+                    }
                 }
+            }
+*/
+            function animator(){
+                if(end ==0) return;
+                else progress.value=end;                
+            }
+
+            //값 수치 조정 함수
+            function checkEmotionValue(emotionValue) {
+                var checkemotionvalue = 0;
+                if(emotionValue == 0)
+                    return checkemotionvalue;
+                else if (0 < emotionValue && emotionValue < 0.1)
+                    checkemotionvalue = emotionValue * 1000;
+                else
+                    checkemotionvalue = emotionValue * 500;
+                return checkemotionvalue;
             }
 
             setTimeout(() => {
