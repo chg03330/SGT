@@ -1,7 +1,10 @@
 <!DOCTYPE html>
+
 <html>
 
 <head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+    <meta content="utf-8" http-equiv="encoding">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.min.js"></script>
     <style>
         body {
@@ -318,32 +321,32 @@
             let updatesPerSecond = 1000 / 60
             let end = checkEmotionValue(emotionValue);
             //let end = progress.max * 0.8
-            progress.value=0;
+            progress.value = 0;
             value.innerHTML = end;
 
-/*
+            /*
+                        function animator() {
+                            if (end == 0)
+                                progress.value = 0;
+                            else {
+                                progress.value = progress.value + interval
+                                if (progress.value + interval < end) {
+                                    setTimeout(animator, updatesPerSecond);
+                                } else {
+                                    progress.value = end
+                                }
+                            }
+                        }
+            */
             function animator() {
-                if (end == 0)
-                    progress.value = 0;
-                else {
-                    progress.value = progress.value + interval
-                    if (progress.value + interval < end) {
-                        setTimeout(animator, updatesPerSecond);
-                    } else {
-                        progress.value = end
-                    }
-                }
-            }
-*/
-            function animator(){
-                if(end ==0) return;
-                else progress.value=end;                
+                if (end == 0) return;
+                else progress.value = end;
             }
 
             //값 수치 조정 함수
             function checkEmotionValue(emotionValue) {
                 var checkemotionvalue = 0;
-                if(emotionValue == 0)
+                if (emotionValue == 0)
                     return checkemotionvalue;
                 else if (0 < emotionValue && emotionValue < 0.1)
                     checkemotionvalue = emotionValue * 1000;
