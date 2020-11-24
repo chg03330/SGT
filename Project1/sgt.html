@@ -161,7 +161,6 @@
             <input type="file" name="inputImage" id="inputImage">
             <button id="btn_camera" onclick="btn_onCamera()">비디오출력</button>
             <button id="btn_capture">캡쳐</button>
-            <canvas id="canvas" style="display:none">
         </div>
 
         <div id="allView" style="height: 500px; border: 1px solid black;">
@@ -190,6 +189,9 @@
         </div>
         <br><br><br><br><br>
     </div>
+    
+    <canvas id="canvas" style="display:none;">
+        </canvas>
 
 
 
@@ -202,10 +204,15 @@
             var reader = new FileReader();
             reader.readAsDataURL(fileList[0]); //로드 한 후
             reader.onload = function () {
-                document.querySelector('#sourceImage').src = reader.result;
-                processImage();
+                changeAllView(reader);
             };
         };
+
+        function changeAllView(reader){
+            document.querySelector('#sourceImage').src=reader.result;
+            processImage();
+        }
+
 
         function processImage() {
             // Replace <Subscription Key> with your valid subscription key.
@@ -375,6 +382,7 @@
             navigator.getUserMedia = navigator.getUserMedia ||
                 navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
             const canvasEl = document.getElementById('canvas');
+            var videoE2;
             /**
              * getUserMedia 성공
              * @param stream
@@ -383,6 +391,7 @@
                 /*스트림성공시, id 조회해야 srcObject값이 null이 안됨*/
                 const videoEl = document.getElementById('video');
                 videoEl.srcObject = stream;
+                videoE2=videoEl;
             }
             /**
              * getUserMedia 실패
@@ -399,7 +408,7 @@
             function capture() {
                 if (document.getElementById('video')) {
                     const context = canvasEl.getContext('2d');
-                    context.drawImage(document.getElementById('video'), 0, 0, "500", "500");
+                    context.drawImage(videoE2, 0, 0);
                     insertImage(canvasEl.toDataURL('image/png'));
                 }
             }
@@ -409,9 +418,11 @@
              * @param imageData
              */
             function insertImage(imageData) {
-                const divv = document.getElementById('video');
+                const divv = document.getElementById('allView');
                 //navigator.getUserMedia.error(err);
-                divv.innerHTML = "<img src=''" + imageData + "' width='100%' height='100%'>";
+                alert(imageData);
+                divv.innerHTML = '<img id="sourceImage" width="100%" height="100%" alt="업로드 버튼을 눌러 사진을 등록하면, 값이 나옵니다" src="' + imageData + '"/>';
+                
             }
 
             $('#btn_camera').click(function () {
